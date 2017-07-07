@@ -1,0 +1,147 @@
+SELECT
+    c.name AS country,
+    cl.language AS language
+FROM
+    country c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+WHERE
+    c.name = 'United States'
+ORDER BY
+      cl.percentage DESC
+
+      => This tells us What languages are spoken in the United States? (12) in order of most spoken (the DESC in cl.percentage)
+
+SELECT
+    c.name AS country,
+    cl.language AS language
+FROM
+    country c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+WHERE
+    c.name = 'Brazil'
+ORDER BY
+      cl.percentage DESC
+
+      => Does the same as above for Brazil
+
+      SELECT
+          c.name AS country,
+          cl.language AS language
+      FROM
+          country c JOIN
+          countrylanguage cl ON (cl.countrycode = c.code)
+      WHERE
+          c.name = 'Brazil'
+      ORDER BY
+            cl.percentage DESC
+=> Does the same as above for Switzerland (German is most spoken! Then French then Italian then Romansh)
+
+SELECT
+    c.name AS country,
+    cy.name AS city,
+    cy.population
+FROM
+    country c JOIN
+    city cy ON (cy.countrycode = c.code)
+WHERE
+    c.name = 'United States'
+ORDER BY
+     cy.population DESC
+=>What are the cities of the US? (274) We ordered it by largest ciy population
+
+
+SELECT
+    c.name AS country,
+    cy.name AS city,
+    cy.population
+FROM
+    country c JOIN
+    city cy ON (cy.countrycode = c.code)
+WHERE
+    c.name = 'India'
+ORDER BY
+     cy.population DESC
+
+
+     SELECT
+         c.name AS country,
+         cl.language AS language,
+         cl.isofficial
+
+     FROM
+         country c JOIN
+         countrylanguage cl ON (cl.countrycode = c.code)
+     WHERE
+         c.name = 'Switzerland' AND cl.isofficial = 't'
+
+=>What are the official languages of Switzerland? (4 languages)
+
+SELECT
+    c.name AS country, COUNT(cl.language)
+FROM
+    country c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+ GROUP BY country
+ ORDER BY COUNT(cl.language) DESC
+ => Which country or contries speak the most languages? (12 languages)
+learned how GROUP BY relates to SELECT. needs to match. GROUP BY uses SELECT, then does action within SELECT (but SELECT can only have one field to group by, but it can have an action like count )
+
+SELECT
+    c.name AS country, COUNT(cl.isofficial = 't')
+FROM
+    country c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+WHERE
+    cl.isofficial = 't'
+GROUP BY country
+ORDER BY COUNT(cl.isofficial = 't') DESC
+
+
+
+
+WITH mostspoken AS (
+SELECT
+    cl.language,
+    c.name,
+    cl.percentage,
+    cl.isofficial,
+    c.population
+
+
+FROM
+    country c JOIN
+    countrylanguage cl ON (c.code = cl.countrycode)
+
+       ORDER BY c.population * cl.percentage DESC)
+
+    SELECT language, SUM(percentage*population) FROM mostspoken
+    GROUP BY language
+    ORDER BY sum DESC
+    => What is the most spoken language in the world? (Chinese!)
+
+
+    SELECT DISTINCT
+        c.name AS country,
+        c.population
+    FROM
+        country c JOIN
+        city cy ON (cy.countrycode = c.code)
+    WHERE
+        c.name = 'United States'
+=> population of the United States (change the name to 'India' to see that population of India which is 1 Billion!)
+
+WITH citypopulation AS (
+SELECT
+    c.name AS country,
+    cy.name AS city,
+    cy.population
+
+FROM
+    country c JOIN
+    city cy ON (cy.countrycode = c.code)
+WHERE
+    c.name = 'United States')
+
+SELECT SUM(population) FROM citypopulation
+
+=> What is the city population of the United States? (change name to see for India)

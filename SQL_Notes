@@ -1,0 +1,497 @@
+SELECT * FROM country
+
+SELECT population FROM country WHERE name = 'United States'
+=> 278357000
+
+SELECT surfacearea FROM country WHERE code = 'USA'
+=> 9.36352e+06
+
+SELECT * FROM country WHERE continent = 'Africa' AND population < 30000000 AND lifeexpectancy > 45
+=> 37 countries showed up
+
+SELECT name, governmentform FROM country WHERE governmentform LIKE '%Republic'
+=> returns republic and federal republic. total 143.
+
+SELECT name, governmentform, indepyear FROM country WHERE governmentform LIKE '%Republic' AND indepyear > 1945
+=>92 total shown
+
+SELECT name, governmentform, indepyear FROM country WHERE governmentform NOT LIKE '%Republic' AND indepyear > 1945
+=>shows 27
+
+  SELECT name, lifeexpectancy
+  FROM country
+  WHERE lifeexpectancy > 0
+  ORDER BY lifeexpectancy ASC
+  LIMIT 15;
+=> shows lowest 15 counties life expectancy
+
+  SELECT name, lifeexpectancy
+  FROM country
+  WHERE lifeexpectancy > 0
+  ORDER BY lifeexpectancy DESC
+  LIMIT 15;
+  => shows highest 15 counties life expectancy
+
+  SELECT name, population, surfacearea
+FROM country
+WHERE population / surfacearea > 0
+ORDER BY population / surfacearea ASC
+LIMIT 10;
+=> show the 10 countries with the lowest population density
+
+
+  SELECT name, population, surfacearea
+FROM country
+WHERE population / surfacearea > 0
+ORDER BY population / surfacearea DESC
+LIMIT 10;
+=> show the 10 countries with the highest population density
+
+SELECT name, population, surfacearea
+FROM country
+WHERE population > 0
+ORDER BY surfacearea ASC
+LIMIT 10;
+=>This gives us the 10 smallest country by population, sorted by the smallest surface area
+
+SELECT name, population, surfacearea
+FROM country
+WHERE surfacearea > 0
+ORDER BY surfacearea ASC
+LIMIT 10;
+=>This gives us the 10 smallest country by surface are, sorted by the smallest surface area (Vatican City, etc)
+
+SELECT name, population, surfacearea
+FROM country
+WHERE surfacearea > 0
+ORDER BY surfacearea DESC
+LIMIT 10;
+=>This gives us the 10 largest country by surface area, sorted by the largest surface area (Russia, Canada etc)
+
+
+SELECT name, population, surfacearea
+FROM country
+WHERE population > 0
+ORDER BY population DESC
+LIMIT 10;
+=>This gives us the 10 largest country by population sorted by the largest population (China, India, US)
+
+
+WITH smallestpop AS (
+SELECT name, population, gnp
+FROM country
+WHERE population > 0
+ORDER BY population ASC
+LIMIT 10)
+SELECT name, population, gnp
+FROM smallestpop
+ORDER BY gnp DESC
+LIMIT 1;
+=>"Holy See (Vatican City State)"
+=> This hows which country has the biggest gnp out of all the 10 smallest  countries by population (it's Vatican City)
+
+WITH smallestpop AS (
+SELECT name, population, gnp
+FROM country
+WHERE population > 0
+ORDER BY population ASC
+LIMIT 10)
+SELECT name, population, gnp
+FROM smallestpop
+WHERE gnp/population >= 0
+ORDER BY gnp/population DESC
+LIMIT 1;
+=> This hows which country has the biggest per capita gnp out of all the 10 smallest  countries by population (it's Vatican City)
+
+
+WITH biggestpop AS (
+SELECT name, population, gnp
+FROM country
+WHERE population > 0
+ORDER BY population DESC
+LIMIT 10)
+SELECT name, population, gnp
+FROM biggestpop
+WHERE gnp >= 0
+ORDER BY gnp DESC
+LIMIT 1;
+=> This is the biggest 10 countries with the biggest gnp (can take out the 2nd WHERE and it works; this gives us the US)
+
+
+WITH biggestpop AS (
+SELECT name, population, gnp
+FROM country
+WHERE population > 0
+ORDER BY population DESC
+LIMIT 10)
+SELECT name, population, gnp
+FROM biggestpop
+WHERE gnp/population >= 0
+ORDER BY gnp/population DESC
+=> This is the biggest 10 countries with the biggest per capita gnp
+
+
+WITH smallestpop AS (
+SELECT name, population, surfacearea
+FROM country
+WHERE population > 0
+ORDER BY population ASC
+LIMIT 10)
+SELECT SUM(surfacearea)
+FROM smallestpop
+=> This is getting us the sum of the surface are of the 10 smallest country (smallest by population)
+
+
+WITH biggest AS (
+SELECT name, population, surfacearea
+FROM country
+WHERE population > 0
+ORDER BY population DESC
+LIMIT 10)
+SELECT SUM(surfacearea)
+FROM biggest
+=> This is getting us the sum of the surface are of the 10 largest country (largest by population)
+
+WITH totalcont as(
+SELECT population, continent FROM country)
+
+SELECT sum(population) FROM totalcont
+=> total population of all continents
+
+WITH avglifecont as(
+SELECT lifeexpectancy, continent FROM country)
+
+SELECT avg(lifeexpectancy) FROM avglifecont
+=>this will give average of life expectancy in all continents
+
+
+
+
+
+
+SELECT continent, SUM(population), SUM(surfacearea) FROM country
+GROUP BY continent;
+=> shows the continents sum population and sum of surface area
+
+SELECT region, avg(gnp) FROM country
+GROUP BY region
+ORDER BY avg(gnp) DESC
+LIMIT 1
+=> shows the region that has the highest average gnp (it's North America)
+
+SELECT headofstate, max(population) FROM country
+GROUP BY headofstate
+ORDER BY max(population) DESC
+LIMIT 1
+=>This shows the most influential head of state measured by population
+
+SELECT headofstate, max(surfacearea) FROM country
+GROUP BY headofstate
+ORDER BY max(surfacearea) DESC
+LIMIT 1
+=>This shows the most influential head of state measured by surface area
+
+SELECT governmentform, count(governmentform) FROM country
+GROUP BY governmentform
+ORDER BY count(governmentform) DESC
+=>Republic is the most common government form, there are 122 Republics
+
+
+WITH topten AS (
+SELECT name, population, surfacearea, governmentform
+FROM country
+WHERE surfacearea > 0
+ORDER BY surfacearea DESC
+LIMIT 10)
+SELECT governmentform
+FROM topten
+GROUP BY governmentform
+ORDER BY governmentform ASC
+=> this lists the forms of government for the top ten countries by surface area, and it list these forms in alphabetical order
+
+WITH topten AS (
+SELECT name, population, gnp, governmentform
+FROM country
+WHERE gnp > 0
+ORDER BY gnp DESC
+LIMIT 10)
+SELECT governmentform
+FROM topten
+GROUP BY governmentform
+ORDER BY governmentform ASC
+=> This returns the forms of government for the top ten richest nations (most production aka highest gnp, sorted alphabetically by governemnt form)
+
+
+
+WITH toprichest AS (
+SELECT name, population, gnp, governmentform
+FROM country
+WHERE gnp/population > 0
+ORDER BY gnp/population DESC
+LIMIT 10)
+SELECT governmentform
+FROM toprichest
+WHERE gnp/population >= 0
+ORDER BY gnp/population DESC
+LIMIT 10;
+
+WITH toprichest AS (
+SELECT name, population, gnp, governmentform
+FROM country
+WHERE population > 0
+ORDER BY gnp/population DESC
+LIMIT 10)
+SELECT governmentform, name, gnp, population, gnp/population
+FROM toprichest
+WHERE gnp/population >= 0
+ORDER BY gnp/population DESC
+LIMIT 10;
+=> this shows the forms of government for the top ten richest per capita nations, also showing a few columns such as gnp/poplation etc.
+
+
+SELECT surfacearea, name FROM country
+ORDER BY surfacearea DESC
+LIMIT 11
+
+SELECT surfacearea, name FROM country
+ORDER BY surfacearea DESC
+LIMIT (SELECT  5*count(name)/100 FROM country )
+
+=> both of these show the top 5% of countries in terms of area
+
+
+WITH chilecities AS (
+SELECT * FROM city WHERE countrycode = 'CHL')
+SELECT count(name)
+FROM chilecities
+=> this tells us how many cities are in Chile
+
+SELECT population FROM country WHERE name = 'China'
+=> the total population of China
+
+
+WITH northamerica AS (SELECT name FROM country WHERE region = 'North America')
+SELECT count(name) FROM northamerica
+=> how many countries in North America
+
+
+SELECT name FROM country WHERE indepyear < 1963
+=>which countries gained their independence before 1963
+
+SELECT name FROM country WHERE name LIKE '%z%' OR name LIKE '%Z%'
+=> countries that have the letter z in the name (there were 16)
+
+SELECT 2017-indepyear FROM country WHERE name = 'Jamaica'
+=> finds the age of Jamaica
+
+
+ELECT name FROM country
+WHERE officiallanguage NOT IN (SELECT ... FROM ... WHERE ...)
+
+
+SELECT countrycode
+FROM countrylanguage
+WHERE isofficial = 'f'
+
+EXCEPT
+
+SELECT countrycode
+FROM countrylanguage
+WHERE isofficial = 't'
+
+=> finds all of the countries that do not have an official language. except takes the first select but then filters out the ones that also meet the 2nd select
+
+
+
+WITH tenlargest AS (
+SELECT name, surfacearea, code
+FROM country
+ORDER BY surfacearea DESC
+LIMIT 10)
+
+SELECT
+    c.name AS country, COUNT(cl.language)
+FROM
+    tenlargest c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+ GROUP BY country
+ ORDER BY COUNT(cl.language) DESC
+=> This shows which languages are spoken in the ten largest (area) countries?
+
+WITH twentypoorest AS (
+SELECT *
+FROM country
+WHERE gnp > 0
+ORDER BY gnp ASC
+LIMIT 20)
+
+SELECT DISTINCT
+    cl.language AS language
+FROM
+    twentypoorest c JOIN
+    countrylanguage cl ON (cl.countrycode = c.code)
+
+What languages are spoken in the 20 poorest (GNP/ capita) countries in the world? (94 with GNP > 0)
+Hint: Use WITH to get the countries, and SELECT DISTINCT to remove duplicates
+
+
+WITH noofficial AS (
+SELECT countrycode
+FROM countrylanguage
+WHERE isofficial = 'f'
+
+EXCEPT
+
+SELECT countrycode
+FROM countrylanguage
+WHERE isofficial = 't')
+
+
+SELECT DISTINCT
+    cl.language AS language
+FROM
+    noofficial c JOIN
+    countrylanguage cl ON (cl.countrycode = c.countrycode)
+=>What are the languages spoken in the countries with no official language? (49 countries, 172 languages, incl. English)
+
+WITH officiallang AS (
+select * from countrylanguage
+WHERE isofficial = 't'
+ORDER BY percentage DESC)
+
+SELECT
+    c.language AS language,
+    x.name,
+    c.percentage,
+    c.isofficial
+
+FROM
+    officiallang c JOIN
+    country x ON (x.code = c.countrycode)
+    =>
+
+
+    SELECT name
+    FROM country
+
+    EXCEPT
+
+    SELECT
+
+    c.name AS country_name
+
+    FROM
+    country c JOIN city ON (city.countrycode = c.code)
+    => finds the countries that don't have any cities
+
+
+    WITH EngOffic  as (
+    SELECT * FROM countrylanguage WHERE isofficial = 't' AND language = 'English')
+
+
+    SELECT DISTINCT
+        SUM(cy.population)
+    FROM
+        EngOffic c JOIN
+        city cy ON (cy.countrycode = c.countrycode)
+=> What is the total population of cities where English is the offical language? (change to Spanish for Spanish)
+
+
+
+WITH bigcity AS (
+SELECT * FROM city
+ORDER BY population DESC
+LIMIT 100)
+
+SELECT DISTINCT
+    c.name
+FROM
+    bigcity cy JOIN
+    country c ON (c.code = cy.countrycode)
+=> Which countries have the 100 biggest cities in the world?
+
+WITH big100 AS(
+
+WITH bigcity AS (
+SELECT * FROM city
+ORDER BY population DESC
+LIMIT 100)
+
+SELECT DISTINCT
+    c.name
+FROM
+    bigcity cy JOIN
+    country c ON (c.code = cy.countrycode))
+
+SELECT *
+
+FROM
+    big100 b JOIN
+    countrylanguage cl ON (b.code = cl.countrycode)
+
+
+    WITH big100 AS(
+
+    WITH bigcity AS (
+    SELECT * FROM city
+    ORDER BY population DESC
+    LIMIT 100)
+
+    SELECT DISTINCT
+        c.code
+    FROM
+        bigcity cy JOIN
+        country c ON (c.code = cy.countrycode))
+
+    SELECT DISTINCT
+       language
+
+    FROM
+        big100 b JOIN
+        countrylanguage cl ON (b.code = cl.countrycode)
+
+=>What languages are spoken in the countries with the 100 biggest cities in the world?
+
+
+WITH firstcustomer AS (
+SELECT *
+FROM rentals
+ORDER BY rental_date
+LIMIT 1)
+
+
+SELECT
+    first_name, last_name
+FROM
+    firstcustomer f JOIN
+    customers c USING (customer_id)
+=>Which customer placed the orders on the earliest date?
+
+
+WITH filmID AS (
+	WITH inventoryId AS (
+	WITH firstcustomer AS (
+	SELECT *
+	FROM rentals
+	ORDER BY rental_date
+	LIMIT 1)
+
+
+	SELECT
+	    inventory_id
+	FROM
+	    firstcustomer f JOIN
+	    customers c USING (customer_id))
+
+	SELECT
+	    film_id
+	FROM
+	    inventoryId inv JOIN
+	    inventory i USING (inventory_id))
+
+SELECT
+     title
+FROM
+	    filmID fid JOIN
+	    films f USING (film_id)
+=> gives us the title of the film the customer rented on the earliest possible date
